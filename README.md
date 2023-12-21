@@ -61,7 +61,7 @@ python scripts/run_evaluation.py
 ```
 
 The test dataset we used is defined in `quartz_solar_forecast/dataset/testset.csv`. 
-This contains 50 PV sites, with 50 unique timestamps. The data is from 2021. 
+This contains 50 PV sites, with 50 unique timestamps for each site making a total of 2,500 initialisation times. The data is from 2021. 
 
 The results of the evaluation are as follows
 The MAE is 0.1906 kw across all horizons. 
