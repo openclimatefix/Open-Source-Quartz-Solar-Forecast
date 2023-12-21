@@ -61,7 +61,7 @@ python scripts/run_evaluation.py
 ```
 
 The test dataset we used is defined in `quartz_solar_forecast/dataset/testset.csv`. 
-This contains 50 PV sites, which 50 unique timestamps. The data is from 2021. 
+This contains 50 PV sites, with 50 unique timestamps. The data is from 2021. 
 
 The results of the evaluation are as follows
 The MAE is 0.1906 kw across all horizons. 
@@ -79,7 +79,7 @@ The MAE is 0.1906 kw across all horizons.
 
 
 Notes: 
-- THe MAE in % is the MAE divided by the capacity of the PV site. We acknowledge there are a number of different ways to do this. 
+- The MAE in % is the MAE divided by the capacity of the PV site. We acknowledge there are a number of different ways to do this. 
 - it is slightly surprising that the 0-hour forecast horizon and the 24-48 hour horizon have a similar MAE.
 This may be because the model is trained expecting live PV data, but currently in this project we provide no live PV data. 
 
