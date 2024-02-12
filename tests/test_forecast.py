@@ -10,5 +10,5 @@ def test_run_forecast():
     predications_df = run_forecast(site=site, ts='2023-10-30')
 
     print(predications_df)
-    print(f"Max: {predications_df['power_wh'].max()}")
+    print(f"Max: {predications_df['power_kw'].max()}")
 

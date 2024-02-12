@@ -28,7 +28,7 @@ def combine_forecast_ground_truth(forecast_df: pd.DataFrame, ground_truth_df: pd
     """
 
     # rename power to forecast_power
-    forecast_df = forecast_df.rename(columns={"power_wh": "forecast_power"})
+    forecast_df = forecast_df.rename(columns={"power_kw": "forecast_power"})
 
     # rename power to ground_truth_power
     ground_truth_df = ground_truth_df.rename(columns={"value": "generation_power"})

@@ -11,7 +11,7 @@ def main():
     predictions_df = run_forecast(site=site, ts="2023-10-30")
 
     print(predictions_df)
-    print(f"Max: {predictions_df['power_wh'].max()}")
+    print(f"Max: {predictions_df['power_kw'].max()}")
 
 
 if __name__ == "__main__":

@@ -112,7 +112,7 @@ def format_nwp_data(df: pd.DataFrame, nwp_source:str, site: PVSite):
     return data_xr
 
 
-def make_pv_data(site: PVSite, ts: pd.Timestamp) -> xr.Dataset:
+def make_pv_data(site: PVSite, ts: pd.Timestamp, recent_pv_data: pd.DataFrame | None = None) -> xr.Dataset:
     """
     Make fake PV data for the site
 
@@ -122,22 +122,24 @@ def make_pv_data(site: PVSite, ts: pd.Timestamp) -> xr.Dataset:
     :param ts: the timestamp of the site
     :return: The fake PV dataset in xarray form
     """
-
-    # make fake pv data, this is where we could add history of a pv system
-    generation_wh = [[np.nan]]
-    lon = [site.longitude]
-    lat = [site.latitude]
-    timestamp = [ts]
-    pv_id = [1]
+    if recent_pv_data is not None:
+        # get the most recent data
+        recent_pv_data = recent_pv_data[recent_pv_data['timestamp'] <= ts]
+        power_kw = np.array([np.array(recent_pv_data["power_kw"].values)])
+        timestamp = recent_pv_data['timestamp'].values
+    else:
+        # make fake pv data, this is where we could add history of a pv system
+        power_kw = [[np.nan]]
+        timestamp = [ts]
 
     da = xr.DataArray(
-        data=generation_wh,
+        data=power_kw,
         dims=["pv_id", "timestamp"],
         coords=dict(
-            longitude=(["pv_id"], lon),
-            latitude=(["pv_id"], lat),
+            longitude=(["pv_id"], [site.longitude]),
+            latitude=(["pv_id"], [site.latitude]),
             timestamp=timestamp,
-            pv_id=pv_id,
+            pv_id=[1],
             kwp=(["pv_id"], [site.capacity_kwp]),
             tilt=(["pv_id"], [site.tilt]),
             orientation=(["pv_id"], [site.orientation]),
