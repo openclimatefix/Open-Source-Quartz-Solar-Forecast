@@ -6,18 +6,20 @@ This contains 50 sites each with 50 timestamps to make 2500 samples in total.
 
 """
 
+import logging
 import os
 
 import pandas as pd
+import plotly.graph_objects as go
+from dotenv import load_dotenv
 from huggingface_hub.hf_api import HfFolder
+from plotly.subplots import make_subplots
 
 from quartz_solar_forecast.eval.forecast import run_forecast
 from quartz_solar_forecast.eval.metrics import metrics
 from quartz_solar_forecast.eval.nwp import get_nwp
 from quartz_solar_forecast.eval.pv import get_pv_metadata, get_pv_truth
 from quartz_solar_forecast.eval.utils import combine_forecast_ground_truth
-
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -61,7 +63,46 @@ def run_eval(testset_path: str = "dataset/testset.csv"):
     metrics(results_df, pv_metadata, include_night=False)
 
     # Visualizations
-    # TODO
+
+    results_df.set_index("timestamp", inplace=True)
+
+    # sort by timestamp
+    results_df.sort_index(inplace=True)
+    fig = make_subplots(
+        rows=2, cols=1, subplot_titles=("Predictions", "Actual"), vertical_spacing=0.05
+    )
+
+    # Add the first plot to the first column
+    fig.add_trace(
+        go.Scatter(
+            x=results_df.index,
+            y=results_df["forecast_power"],
+            mode="lines",
+            name="Forecasted Power",
+        ),
+        row=1,
+        col=1,
+    )
+
+    # Add the second plot to the second column
+    fig.add_trace(
+        go.Scatter(
+            x=results_df.index,
+            y=results_df["generation_power"],
+            mode="lines",
+            name="Generated Power",
+        ),
+        row=2,
+        col=1,
+    )
+
+    # Update layout
+    fig.update_layout(
+        title="Evalution - Comparision Prediction vs. Actual",
+        xaxis_tickformat="%Y-%m-%d",
+        xaxis2_tickformat="%Y-%m-%d",
+    )
+    fig.show(renderer="browser")
 
 
 # run_eval()
