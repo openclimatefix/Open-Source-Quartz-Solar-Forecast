@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
 
-
 class PVSite(BaseModel):
     latitude: float = Field(..., description="the latitude of the site", ge=-90, le=90)
     longitude: float = Field(

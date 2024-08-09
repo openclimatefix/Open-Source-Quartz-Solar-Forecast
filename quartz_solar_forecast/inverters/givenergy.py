@@ -75,5 +75,5 @@ def get_givenergy_data():
         'timestamp': [timestamp],
         'power_kw': [power_kw]
     })
-    print(df)
+
     return df

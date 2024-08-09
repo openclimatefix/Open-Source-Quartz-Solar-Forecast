@@ -7,6 +7,8 @@ from datetime import datetime, timedelta, timezone
 
 from dotenv import load_dotenv
 
+load_dotenv()
+
 from urllib.parse import urlencode
 
 def get_enphase_auth_url():

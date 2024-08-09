@@ -76,4 +76,4 @@ def get_solarman_data(start_date, end_date):
     # Sort by timestamp
     full_data = full_data.sort_values('timestamp')
     
-    return full_data
+    return full_data    
