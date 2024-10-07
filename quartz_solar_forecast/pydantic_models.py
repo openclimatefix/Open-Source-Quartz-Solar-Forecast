@@ -6,6 +6,7 @@ from quartz_solar_forecast.inverters.givenergy import GivEnergySettings, GivEner
 from quartz_solar_forecast.inverters.mock import MockInverter
 from quartz_solar_forecast.inverters.solarman import SolarmanSettings, SolarmanInverter
 from quartz_solar_forecast.inverters.solis import SolisSettings, SolisInverter
+from quartz_solar_forecast.inverters.victron import VictronSettings, VictronInverter
 
 
 class PVSite(BaseModel):
@@ -41,6 +42,8 @@ class PVSite(BaseModel):
             return GivEnergyInverter(GivEnergySettings())
         elif self.inverter_type == 'solarman':
             return SolarmanInverter(SolarmanSettings())
+        elif self.inverter_type == 'victron':
+            return VictronInverter.from_settings(VictronSettings())
         else:
             return MockInverter()
 

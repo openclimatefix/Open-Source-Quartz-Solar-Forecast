@@ -31,7 +31,8 @@ dependencies = [
     "uvicorn",
     "fastapi",
     "pydantic_settings",
-    "httpx"
+    "httpx",
+    "vrmapi @ git+https://github.com/mduffin95/vrm-api-python-client@fe16d06"
 ]
 
 [project.urls]

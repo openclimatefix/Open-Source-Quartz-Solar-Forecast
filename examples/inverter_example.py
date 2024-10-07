@@ -14,7 +14,7 @@ def main(save_outputs: bool = False):
     ts = pd.to_datetime(timestamp_str)
 
     # make input data with live enphase, solis, givenergy, or solarman data
-    site_live = PVSite(latitude=51.75, longitude=-1.25, capacity_kwp=1.25, inverter_type="enphase") # inverter_type="enphase", "solis", "givenergy", or "solarman"
+    site_live = PVSite(latitude=51.75, longitude=-1.25, capacity_kwp=1.25, inverter_type="enphase") # inverter_type="enphase", "solis", "givenergy", "solarman" or "victron"
 
     # make input data with nan data
     site_no_live = PVSite(latitude=51.75, longitude=-1.25, capacity_kwp=1.25)
