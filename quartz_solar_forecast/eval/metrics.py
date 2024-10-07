@@ -21,6 +21,8 @@ def metrics(results_df: pd.DataFrame, pv_metadata: pd.DataFrame, include_night: 
 
     """
 
+    print(f'Making MAE results with {include_night=}')
+
     # remove night time
     if not include_night:
         results_df = results_df[results_df["generation_power"] > 0.1]

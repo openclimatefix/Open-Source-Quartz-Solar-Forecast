@@ -151,6 +151,10 @@ def get_nwp_for_one_timestamp_one_location(
         }
     )
 
+    # change dswrf and dlwrf to hourly mean, rather than forecast mean
+    df = change_from_forecast_mean_to_hourly_mean(df, variable="dswrf")
+    df = change_from_forecast_mean_to_hourly_mean(df, variable="dlwrf")
+
     # add visbility for the moment
     # TODO
     df["vis"] = 10000
@@ -172,5 +176,28 @@ def get_nwp_for_one_timestamp_one_location(
 
     if progress:
         print(f"Getting NWP for {timestamp} {pv_id}. Progress: {100*progress}%")
+
+    return df
+
+
+def change_from_forecast_mean_to_hourly_mean(df: pd.DataFrame, variable: str = "dswrf"):
+    """Change the forecast mean to hourly mean for a variable
+
+    The irradience variables are in forecast mean, so we need to change them to hourly mean.
+    We do this by change the forecast mena to cumsum, and then taking the difference
+    """
+
+    # change the forecast mean to cumsum
+    variable_cumsum = f"{variable}_cumsum"
+    df[variable_cumsum] = df[variable] * range(0, len(df))
+
+    # take the difference
+    df.loc[1:, variable] = df[variable_cumsum].diff()[1:].astype(np.float32)
+
+    # drop the cumsum column
+    df = df.drop(columns=[variable_cumsum])
+
+    # clip zero
+    df[variable] = df[variable].clip(lower=0)
 
     return df

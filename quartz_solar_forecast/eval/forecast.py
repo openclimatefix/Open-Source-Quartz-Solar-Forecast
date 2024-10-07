@@ -77,7 +77,7 @@ def run_forecast(pv_df: pd.DataFrame, nwp_df: pd.DataFrame, nwp_source="ICON") -
         pred_df = forecast_v1(nwp_source, nwp_xr, pv_xr, ts, model=model)
 
         # only select hourly predictions
-        pred_df = pred_df.resample("1H").mean()
+        pred_df = pred_df.resample("1h").mean()
         pred_df["horizon_hour"] = range(0, len(pred_df))
         pred_df["pv_id"] = pv_id
 
