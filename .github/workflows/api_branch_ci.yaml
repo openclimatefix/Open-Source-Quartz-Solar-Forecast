@@ -15,5 +15,4 @@ jobs:
       enable_typechecking: false
       containerfile: Dockerfile
       tests_folder: 'tests/unit/api_tests'
-      tests_matrix: true
       test_python_versions: '["3.11"]'

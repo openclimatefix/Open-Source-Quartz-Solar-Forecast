@@ -2,7 +2,9 @@ from quartz_solar_forecast.eval.nwp import get_nwp
 import pandas as pd
 import pytest
 
-
+@pytest.mark.skip(
+    reason="Requires authenticated access to the gated Hugging Face NWP dataset"
+)
 # can take ~ 1 minute to run
 @pytest.mark.integration
 def test_get_nwp():
