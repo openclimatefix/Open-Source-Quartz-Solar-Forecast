@@ -39,7 +39,9 @@ const formSchema = z.object({
     .gt(0, { message: "Site capacity must be greather than 0." }),
 });
 
-export function PVForecastForm({ updatePredictions }) {
+type PredictionsType = Record<string, number>;
+
+export function PVForecastForm({ updatePredictions }: { updatePredictions: (predictions: PredictionsType) => void }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     mode: "onChange",
@@ -51,13 +53,19 @@ export function PVForecastForm({ updatePredictions }) {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const response = await fetch(`http://localhost:8000/forecast`, {
+    const response = await fetch(`https://open.quartz.solar/forecast/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+      body: JSON.stringify({
+        site: {
+          latitude: values.latitude,
+          longitude: values.longitude,
+          capacity_kwp: values.capacity_kwp,
+        },
+      }),
     });
     const data = await response.json();
-    updatePredictions(data.power_kw);
+    updatePredictions(data.predictions.power_kw);
   }
   return (
     <Form {...form}>

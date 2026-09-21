@@ -7,7 +7,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-export function PredictionTable({ predictions }) {
+
+type PredictionsType = Record<string, number>;
+
+export function PredictionTable({ predictions }: { predictions: PredictionsType }) {
   return (
     <Table className="border">
       <TableCaption>

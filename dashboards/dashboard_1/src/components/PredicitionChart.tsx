@@ -3,7 +3,6 @@ import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
 } from "@/components/ui/chart";
 const chartConfig = {
   power: {
@@ -12,9 +11,16 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-function CustomizedTick(props) {
-  const { x, y, stroke, payload } = props;
-  const [date, time] = payload.value.split("T");
+interface TickProps {
+  x?: number;
+  y?: number;
+  stroke?: string;
+  payload?: { value: string };
+}
+
+function CustomizedTick(props: TickProps) {
+  const { x = 0, y = 0, payload } = props;
+  const [date, time] = (payload?.value ?? "").split("T");
   return (
     <g transform={`translate(${x},${y})`}>
       <text x={0} y={0} dy={16}>
@@ -29,7 +35,9 @@ function CustomizedTick(props) {
   );
 }
 
-export function PredictionChart({ predictions }) {
+type PredictionsType = Record<string, number>;
+
+export function PredictionChart({ predictions }: { predictions: PredictionsType }) {
   const chartData = Object.keys(predictions).map((key) => ({
     datetime: key,
     power: predictions[key],

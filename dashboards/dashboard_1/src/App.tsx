@@ -4,8 +4,10 @@ import { useState } from "react";
 import { PredictionTable } from "./components/PredictionTable";
 import { PredictionChart } from "./components/PredicitionChart";
 
+type PredictionsType = Record<string, number>;
+
 function App() {
-  const [predictions, setPredictions] = useState(null);
+  const [predictions, setPredictions] = useState<PredictionsType | null>(null);
   return (
     <div className="flex flex-col max-w-screen-lg max-h-screen-lg p-10">
       <div className="space-y-0.5">
