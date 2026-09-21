@@ -99,6 +99,12 @@ class WeatherService:
             raise ValueError(
                 f"Invalid date format. Please use YYYY-MM-DD format. Error: {str(e)}"
             ) from e
+        
+        if not (end_datetime > start_datetime):
+            raise ValueError(
+                f"Invalid date range. End date ({end_date}) must be greater than "
+                f"start date ({start_date})."
+            )
 
         if not (end_datetime > start_datetime):
             raise ValueError(
@@ -155,6 +161,7 @@ class WeatherService:
             "diffuse_radiation",
             "direct_normal_irradiance",
             "terrestrial_radiation",
+            "snow_depth",  # Issue #217: Snow depth for winter predictions
         ]
         url = self._build_url(latitude, longitude, start_date, end_date, variables)
 
