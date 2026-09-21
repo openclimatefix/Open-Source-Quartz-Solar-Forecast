@@ -24,6 +24,9 @@ def get_pv_metadata(testset: pd.DataFrame):
     combined_data = testset.merge(metadata_df, on="pv_id", how="left")
 
     # only keep the columns we need
+    # normalize column names to lowercase for consistent access
+    combined_data.columns = combined_data.columns.str.lower()
+
     combined_data = combined_data[
         ["pv_id", "timestamp", "latitude_rounded", "longitude_rounded", "kwp"]
     ]

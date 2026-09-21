@@ -18,6 +18,7 @@ from quartz_solar_forecast.eval.metrics import metrics
 from quartz_solar_forecast.eval.nwp import get_nwp
 from quartz_solar_forecast.eval.pv import get_pv_metadata, get_pv_truth
 from quartz_solar_forecast.eval.utils import combine_forecast_ground_truth
+from quartz_solar_forecast.eval.visualize import visualize_results
 
 load_dotenv()
 
@@ -31,7 +32,7 @@ except Exception:
     )
 
 
-def run_eval(testset_path: str = "dataset/testset.csv"):
+def run_eval(testset_path: str = "quartz_solar_forecast/dataset/testset.csv"):
     # load testset from csv
     testset = pd.read_csv(testset_path)
 
@@ -60,7 +61,7 @@ def run_eval(testset_path: str = "dataset/testset.csv"):
     metrics(results_df, pv_metadata, include_night=False)
 
     # Visualizations
-    # TODO
+    visualize_results(results_df, pv_metadata)
 
 
-# run_eval()
+run_eval()
