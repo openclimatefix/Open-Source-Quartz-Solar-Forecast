@@ -31,7 +31,7 @@ except Exception:
     )
 
 
-def run_eval(testset_path: str = "dataset/testset.csv"):
+def run_eval(testset_path: str = os.path.join(os.path.dirname(__file__), "dataset", "testset.csv")):
     # load testset from csv
     testset = pd.read_csv(testset_path)
 
@@ -63,4 +63,4 @@ def run_eval(testset_path: str = "dataset/testset.csv"):
     # TODO
 
 
-# run_eval()
+run_eval()
