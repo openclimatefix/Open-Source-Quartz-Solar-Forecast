@@ -8,6 +8,7 @@ This contains 50 sites each with 50 timestamps to make 2500 samples in total.
 """
 
 import os
+from pathlib import Path
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -21,6 +22,11 @@ from quartz_solar_forecast.eval.utils import combine_forecast_ground_truth
 
 load_dotenv()
 
+# Location of the predefined testset, resolved relative to this file so that it
+# does not depend on the current working directory. This matches how
+# dataset/make_test_set.py writes the file (next to itself).
+DEFAULT_TESTSET_PATH = str(Path(__file__).parent / "dataset" / "testset.csv")
+
 try:
     hf_token = os.environ["HF_TOKEN"]
     HfFolder.save_token(hf_token)
@@ -31,7 +37,7 @@ except Exception:
     )
 
 
-def run_eval(testset_path: str = "dataset/testset.csv"):
+def run_eval(testset_path: str = DEFAULT_TESTSET_PATH):
     # load testset from csv
     testset = pd.read_csv(testset_path)
 
