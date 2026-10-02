@@ -3,7 +3,7 @@ import os
 import pytest
 from fastapi.testclient import TestClient
 
-from api.v1.api import app
+import api.v1.api as api
 
 expected_prediction_key = "power_kw"
 expected_dict_keys = ["timestamp", "predictions"]
@@ -52,7 +52,7 @@ expected_response_on_wrong_types = {
 
 @pytest.fixture
 def client():
-    return TestClient(app)
+    return TestClient(api.app)
 
 
 @pytest.fixture
@@ -113,7 +113,9 @@ def bad_redirect_url_correct_param(client):
     return "url?code=code"
 
 
-def test_api_ok(client, body):
+def test_api_ok(client, body, monkeypatch, mock_run_forecast):
+    monkeypatch.setattr(api, "run_forecast", mock_run_forecast)
+
     response = client.post("/forecast/", json=body)
     response_body = response.json()
     assert response.status_code == 200
@@ -126,7 +128,9 @@ def test_api_ok(client, body):
     ), "Expected number of values is wrong"
 
 
-def test_api_ok_short(client, body_short):
+def test_api_ok_short(client, body_short, monkeypatch, mock_run_forecast):
+    monkeypatch.setattr(api, "run_forecast", mock_run_forecast)
+
     response = client.post("/forecast/", json=body_short)
     response_body = response.json()
 
@@ -145,5 +149,4 @@ def test_api_wrong_body(client, body_wrong):
 
     assert response.status_code == 422
     assert response_body == expected_response_on_wrong_types
-
 
