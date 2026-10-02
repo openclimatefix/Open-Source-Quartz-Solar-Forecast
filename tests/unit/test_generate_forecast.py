@@ -1,9 +1,11 @@
 import os
-import pandas as pd
 from datetime import datetime, timedelta
-import quartz_solar_forecast.forecast as forecast
-from quartz_solar_forecast.utils.forecast_csv import write_out_forecasts
+
+import pandas as pd
+
+import quartz_solar_forecast.utils.forecast_csv as forecast_csv
 from quartz_solar_forecast.pydantic_models import PVSite
+
 
 def test_generate_forecast(monkeypatch):
     site_name = "TestCase"
@@ -36,12 +38,12 @@ def test_generate_forecast(monkeypatch):
             }
         )
 
-    monkeypatch.setattr(forecast, "run_forecast", mock_forecast)
+    monkeypatch.setattr(forecast_csv, "run_forecast", mock_forecast)
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    write_out_forecasts(
+    forecast_csv.write_out_forecasts(
         init_time_freq,
         start_datetime,
         end_datetime,
