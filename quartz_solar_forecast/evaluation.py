@@ -42,6 +42,7 @@ def run_eval(testset_path: str = "dataset/testset.csv"):
     # Split data into PV inputs and ground truth. (Zak)
     ground_truth_df = get_pv_truth(testset)
 
+
     # Collect NWP data from Hugging Face, ICON. (Peter)
     nwp_df = get_nwp(pv_metadata)
 
@@ -52,8 +53,11 @@ def run_eval(testset_path: str = "dataset/testset.csv"):
     # (ts, id, horizon (in hours), pred, truth, diff)
     results_df = combine_forecast_ground_truth(predictions_df, ground_truth_df)
 
+    # Drop rows where generation_power is missing
+    results_df = results_df.dropna(subset=["generation_power"])
+
     # Save file
-    results_df.to_csv("results.csv")
+    results_df.to_csv("results.csv", index=False)
 
     # Calculate and print metrics: MAE
     metrics(results_df, pv_metadata, include_night=True)
