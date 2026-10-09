@@ -40,6 +40,12 @@ def predict_ocf(
         ts = datetime.fromisoformat(ts)
 
     if site.capacity_kwp > 4:
+        # Keep the caller's site and live-generation objects unchanged. The
+        # model is trained for sites up to 4 kWp, so the inputs are temporarily
+        # normalised before inference and the forecast is scaled back below.
+        site = site.model_copy(deep=True)
+        if live_generation is not None:
+            live_generation = live_generation.copy(deep=True)
         log.warning(
             "Your site capacity is greater than 4kWp, "
             "however the model is trained on sites with capacity <= 4kWp."
