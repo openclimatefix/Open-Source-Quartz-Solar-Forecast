@@ -15,6 +15,75 @@ from quartz_solar_forecast.pydantic_models import PVSite, PVSiteWithInverter
 ssl._create_default_https_context = ssl._create_unverified_context
 
 
+# Open-Meteo hourly variables requested by get_nwp
+OPEN_METEO_VARIABLES = [
+    "temperature_2m",
+    "precipitation",
+    "cloud_cover_low",
+    "cloud_cover_mid",
+    "cloud_cover_high",
+    "cloud_cover",
+    "wind_speed_10m",
+    "shortwave_radiation",
+    "dew_point_2m",
+]
+
+STEFAN_BOLTZMANN = 5.670374e-8  # W m-2 K-4
+
+
+def downward_longwave_radiation(
+    temperature_c: np.ndarray, dew_point_c: np.ndarray, cloud_cover_pct: np.ndarray
+) -> np.ndarray:
+    """
+    Estimate downward longwave radiation at the surface, as Open-Meteo does not provide it
+
+    Uses the Brutsaert (1975) clear-sky emissivity with a cloud correction of (1 + 0.22 c^2).
+
+    :param temperature_c: 2 m air temperature in °C
+    :param dew_point_c: 2 m dew point in °C
+    :param cloud_cover_pct: total cloud cover in %
+    :return: downward longwave radiation in W/m²
+    """
+    temperature_k = temperature_c + 273.15
+    # vapour pressure in hPa (Magnus formula)
+    vapour_pressure = 6.112 * np.exp(17.67 * dew_point_c / (dew_point_c + 243.5))
+    clear_sky_emissivity = 1.24 * (vapour_pressure / temperature_k) ** (1 / 7)
+    cloud_fraction = np.clip(cloud_cover_pct / 100.0, 0, 1)
+    return (
+        STEFAN_BOLTZMANN * temperature_k**4 * clear_sky_emissivity * (1 + 0.22 * cloud_fraction**2)
+    )
+
+
+def open_meteo_to_model_features(open_meteo_data: dict) -> dict:
+    """
+    Convert Open-Meteo hourly variables into the NWP features and units the gb model was trained on
+
+    The model was trained on UKV data, which uses SI units, so:
+    - t: temperature in K (Open-Meteo gives °C)
+    - prate: precipitation rate in kg m-2 s-1 (Open-Meteo gives mm in the preceding hour)
+    - si10: 10 m wind speed in m/s (Open-Meteo gives km/h)
+    - dlwrf: downward longwave radiation in W/m², estimated as Open-Meteo does not provide it
+    Cloud covers (%) and shortwave radiation (W/m²) already match.
+
+    :param open_meteo_data: dict of Open-Meteo variable name to values
+    :return: dict of model feature name to values
+    """
+    return {
+        "t": open_meteo_data["temperature_2m"] + 273.15,
+        "prate": open_meteo_data["precipitation"] / 3600.0,
+        "lcc": open_meteo_data["cloud_cover_low"],
+        "mcc": open_meteo_data["cloud_cover_mid"],
+        "hcc": open_meteo_data["cloud_cover_high"],
+        "si10": open_meteo_data["wind_speed_10m"] / 3.6,
+        "dswrf": open_meteo_data["shortwave_radiation"],
+        "dlwrf": downward_longwave_radiation(
+            open_meteo_data["temperature_2m"],
+            open_meteo_data["dew_point_2m"],
+            open_meteo_data["cloud_cover"],
+        ),
+    }
+
+
 def get_nwp(site: PVSite, ts: datetime, nwp_source: str = "icon") -> xr.Dataset:
     """
     Get GFS NWP data for a point time space and time
@@ -32,16 +101,7 @@ def get_nwp(site: PVSite, ts: datetime, nwp_source: str = "icon") -> xr.Dataset:
     openmeteo = openmeteo_requests.Client(session=retry_session)
 
     # Define the variables we want. Visibility is handled separately after the main request
-    variables = [
-        "temperature_2m",
-        "precipitation",
-        "cloud_cover_low",
-        "cloud_cover_mid",
-        "cloud_cover_high",
-        "wind_speed_10m",
-        "shortwave_radiation",
-        "direct_radiation",
-    ]
+    variables = OPEN_METEO_VARIABLES
 
     start = ts.date()
     end = start + pd.Timedelta(days=7)
@@ -101,9 +161,11 @@ def get_nwp(site: PVSite, ts: datetime, nwp_source: str = "icon") -> xr.Dataset:
         )
     }
 
-    # variables index as in the variables array of the request
-    for idx, var in enumerate(["t", "prate", "lcc", "mcc", "hcc", "si10", "dswrf", "dlwrf"]):
-        hourly_data[var] = hourly.Variables(idx).ValuesAsNumpy()
+    # responses come back in the order they were requested, so key them by Open-Meteo name
+    open_meteo_data = {
+        var: hourly.Variables(idx).ValuesAsNumpy() for idx, var in enumerate(variables)
+    }
+    hourly_data.update(open_meteo_to_model_features(open_meteo_data))
 
     # handle visibility
     if (now - ts).days <= 90:
