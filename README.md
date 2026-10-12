@@ -112,17 +112,18 @@ It is trained on 25,000 PV sites with over 5 years of PV history, which is avail
 The training of this model is handled in [pv-site-prediction](https://github.com/openclimatefix/pv-site-prediction)
 TODO - we need to benchmark this forecast.
 
-The 9 NWP variables, from Open-Meteo documentation, are mentioned above with their appropariate units.
+The 9 NWP variables are listed below, with the units the model was trained on (UKV NWP).
+They are fetched from Open-Meteo and converted to these units in `quartz_solar_forecast/data.py`.
 
-1. **Visibility (km)**, or vis: Distance at which objects can be clearly seen. Can affect the amount of sunlight reaching solar panels.
-2. **Wind Speed at 10 meters (km/h)**, or si10 : Wind speed measured at a height of 10 meters above ground level. Important for understanding weather conditions and potential impacts on solar panels.
-3. **Temperature at 2 meters (°C)**, or t : Air temperature measure at 2 meters above the ground. Can affect the efficiency of PV systems.
-4. **Precipitation (mm)**, or prate : Precipitation (rain, snow, sleet, etc.). Helps to predict cloud cover and potentiel reductions in solar irradiance.
+1. **Visibility (m)**, or vis: Distance at which objects can be clearly seen. Can affect the amount of sunlight reaching solar panels.
+2. **Wind Speed at 10 meters (m/s)**, or si10 : Wind speed measured at a height of 10 meters above ground level. Important for understanding weather conditions and potential impacts on solar panels.
+3. **Temperature at 2 meters (K)**, or t : Air temperature measure at 2 meters above the ground. Can affect the efficiency of PV systems.
+4. **Precipitation rate (kg m⁻² s⁻¹)**, or prate : Precipitation (rain, snow, sleet, etc.). Helps to predict cloud cover and potentiel reductions in solar irradiance.
 5. **Shortwave Radiation (W/m²)**, or dswrf: Solar radiation in the shortwave spectrum reaching the Earth's surface. Measure of the potential solar energy available for PV systems.
-6. **Direct Radiation (W/m²)** or dlwrf: Longwave (infrared) radiation emitted by the Earth back into the atmosphere. **confirm it is correct**
+6. **Downward Longwave Radiation (W/m²)** or dlwrf: Longwave (infrared) radiation emitted by the atmosphere down to the surface. Open-Meteo does not provide this, so it is estimated from temperature, dew point and cloud cover.
 7. **Cloud Cover low (%)**, or lcc: Percentage of the sky covered by clouds at low altitudes. Impacts the amount of solar radiation reachign the ground, and similarly the PV system.
 8. **Cloud Cover mid (%)**, or mcc : Percentage of the sky covered by clouds at mid altitudes.
-9. **Cloud Cover high (%)**, or lcc : Percentage of the sky covered by clouds at high altitude
+9. **Cloud Cover high (%)**, or hcc : Percentage of the sky covered by clouds at high altitude
    We also use the following features
 
 - poa_global: The plane of array irradiance, which is the amount of solar radiation that strikes a solar panel.
