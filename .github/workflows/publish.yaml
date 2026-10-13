@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout repo content
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: setup python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
@@ -27,3 +27,4 @@ jobs:
           HF_REPO: ${{ secrets.HF_REPO }}
         run: |
           python scripts/hf_upload.py
+

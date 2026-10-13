@@ -8,56 +8,14 @@ on:
 jobs:
 
   call-run-python-tests-integration:
+    # only run on push, not external PR
+    uses: openclimatefix/.github/.github/workflows/python-test.yml@issue/pip-all
     if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest-xdist
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -f setup.py ]; then pip install -e .[all]; else export PYTHONPATH="$PYTHONPATH:./src"; fi
-          if [ -f pyproject.toml ]; then pip install -e .[all]; fi
-          echo "PYTHONPATH=$PYTHONPATH" >> "$GITHUB_ENV"
-          pip install coverage pytest-cov
-
-      - name: Authenticate with Hugging Face
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HUGGING_FACE_HUB_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          if [ -z "$HF_TOKEN" ]; then
-            echo "::error::Repository secret HF_TOKEN is not configured. Add it under Settings > Secrets and variables > Actions."
-            exit 1
-          fi
-          python - <<'PY'
-          import os
-          from huggingface_hub import HfFolder
-
-          HfFolder.save_token(os.environ["HF_TOKEN"])
-          PY
-
-      - name: Run pytest
-        working-directory: tests/integration
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HUGGING_FACE_HUB_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: pytest --cov=quartz_solar_forecast --cov-report=xml -n 1 --dist=loadfile -s
-
-      - name: Show coverage
-        working-directory: tests/integration
-        run: coverage report -m
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          fail_ci_if_error: false
+    with:
+      # pytest-cov looks at this folder
+      pytest_cov_dir: "quartz_solar_forecast"
+      os_list: '["ubuntu-latest"]'
+      python-version: "['3.11']"
+      extra_commands: echo "HF_TOKEN=${{ vars.HF_TOKEN }}" > .env
+      pytest_numcpus: '1'
+      test_dir: tests/integration

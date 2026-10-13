@@ -1,10 +1,10 @@
 name: Unit Tests(branch)
 run-name: 'Test branch commit "${{ github.event.head_commit.message }}"'
 
-on:  
+on:
   push:
-    branches-ignore: [ "main" ]
-    paths-ignore: ['README.md']
+    branches-ignore: ["main"]
+    paths-ignore: ["README.md"]
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -13,10 +13,10 @@ jobs:
     uses: openclimatefix/.github/.github/workflows/branch_ci.yml@main
     permissions:
       contents: read
-      packages: write
     secrets: inherit
     with:
       enable_linting: true
       enable_typechecking: false
-      tests_folder: 'tests/unit'
+      tests_folder: "tests/unit"
+      containerfile: "None"
       test_python_versions: '["3.11"]'
