@@ -1,10 +1,11 @@
+import os
+
 import pandas as pd
 import pytest
 from huggingface_hub import HfFileSystem
 from huggingface_hub.utils import HfHubHTTPError
 
 from quartz_solar_forecast.eval.nwp import get_nwp
-
 
 HF_DATASET = "openclimatefix/dwd-icon-eu"
 HF_TEST_FILE = "datasets/openclimatefix/dwd-icon-eu/data/2021/1/26/20210126_00.zarr.zip"
@@ -15,7 +16,9 @@ def _require_hf_dataset_access() -> None:
     try:
         # Metadata can be public even when the underlying LFS object is gated.
         # Read only the ZIP signature so this check never downloads the 3+ GB file.
-        with HfFileSystem().open(HF_TEST_FILE, "rb") as data_file:
+        with HfFileSystem(token=os.environ.get("HF_TOKEN")).open(
+            HF_TEST_FILE, "rb"
+        ) as data_file:
             if data_file.read(4) != b"PK\x03\x04":
                 raise RuntimeError(f"{HF_TEST_FILE} is not a valid ZIP archive")
     except HfHubHTTPError as exc:
