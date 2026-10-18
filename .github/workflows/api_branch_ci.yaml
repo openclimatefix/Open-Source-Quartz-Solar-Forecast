@@ -1,19 +1,21 @@
 name: API Tests + Docker build (branch)
 run-name: 'Test branch commit "${{ github.event.head_commit.message }}"'
 
-on:  
+on:
   push:
-    branches-ignore: [ "main" ]
-    paths-ignore: ['README.md']
+    branches-ignore: ["main"]
+    paths-ignore: ["README.md"]
 
 jobs:
   branch_ci:
     uses: openclimatefix/.github/.github/workflows/branch_ci.yml@main
+    permissions:
+      contents: read
+      packages: write
     secrets: inherit
     with:
       enable_linting: false
       enable_typechecking: false
       containerfile: Dockerfile
-      tests_folder: 'tests/unit/api_tests'
-      tests_matrix: true
+      tests_folder: "tests/unit/api_tests"
       test_python_versions: '["3.11"]'

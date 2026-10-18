@@ -1,23 +1,25 @@
 name: Unit Tests(branch)
-run-name: 'Test branch commit "${{ github.event.head_commit.message }}"'
+run-name: 'Unit Tests: ${{ github.event.pull_request.title || github.event.head_commit.message || github.ref_name }}'
 
-on:  
+on:
   push:
-    branches-ignore: [ "main" ]
-    paths-ignore: ['README.md']
+    branches-ignore: ["main"]
+    paths-ignore: ["README.md"]
   pull_request:
     types: [opened, synchronize, reopened]
-  pull_request_target:
-    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
   branch_ci:
     uses: openclimatefix/.github/.github/workflows/branch_ci.yml@main
+    permissions:
+      contents: read
+      # The reusable workflow declares packages: write for its container job.
+      # containerfile: "None" skips that job for this unit-test workflow.
+      packages: write
     secrets: inherit
     with:
       enable_linting: true
       enable_typechecking: false
-      tests_folder: 'tests/unit'
-      tests_matrix: true
+      tests_folder: "tests/unit"
+      containerfile: "None"
       test_python_versions: '["3.11"]'
-      containerfile: 'None'
